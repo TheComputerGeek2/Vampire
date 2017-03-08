@@ -4,6 +4,9 @@ import com.massivecraft.massivecore.Aspect;
 import com.massivecraft.massivecore.AspectColl;
 import com.massivecraft.massivecore.MassivePlugin;
 import com.massivecraft.vampire.cmd.CmdVampire;
+import com.massivecraft.vampire.engine.EngineCombat;
+import com.massivecraft.vampire.engine.EngineFx;
+import com.massivecraft.vampire.engine.EngineTruce;
 import com.massivecraft.vampire.entity.MConfColl;
 import com.massivecraft.vampire.entity.MLangColl;
 import com.massivecraft.vampire.entity.UConfColls;
@@ -63,6 +66,11 @@ public class Vampire extends MassivePlugin
 		
 			// Tasks
 			TheTask.class,
+			
+			// Engine
+			EngineCombat.class,
+			EngineTruce.class,
+			EngineFx.class,
 			
 			// Listeners
 			ListenerMain.class,

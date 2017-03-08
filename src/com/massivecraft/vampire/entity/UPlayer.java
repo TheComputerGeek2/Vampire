@@ -728,8 +728,8 @@ public class UPlayer extends SenderEntity<UPlayer>
 		for (Player player : tradeWorld.getPlayers())
 		{
 			if (player.getLocation().distance(tradeLocation) > uconf.tradeVisualDistance) continue;
-			player.playEffect(l1, Effect.POTION_BREAK, 5);
-			player.playEffect(l2, Effect.POTION_BREAK, 5);
+			player.playEffect(l1, Effect.POTION_BREAK, 5); // TODO make this configurable
+			player.playEffect(l2, Effect.POTION_BREAK, 5); // TODO make this configurable
 			if (player.equals(me)) continue;
 			if (player.equals(you)) continue;
 			player.sendMessage(Txt.parse(MLang.get().tradeSeen, me.getDisplayName(), you.getDisplayName()));
@@ -782,7 +782,9 @@ public class UPlayer extends SenderEntity<UPlayer>
 		Location l1 = me.getLocation();
 		Location l2 = you.getLocation();
 		if ( ! l1.getWorld().equals(l2.getWorld())) return false;
-		if (l1.distance(l2) > maxDistance) return false;
+		// This is much more efficient than using the normal distance calculation
+		double maxDistanceSquared = maxDistance * maxDistance;
+		if (l1.distanceSquared(l2) > maxDistanceSquared) return false;
 		return true;
 	}
 	

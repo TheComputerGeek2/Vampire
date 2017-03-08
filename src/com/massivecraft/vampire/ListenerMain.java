@@ -59,28 +59,6 @@ public class ListenerMain extends Engine
 	public static ListenerMain get() { return i; }
 	
 	// -------------------------------------------- //
-	// FX
-	// -------------------------------------------- //
-	
-	@EventHandler(priority = EventPriority.NORMAL)
-	public void fxOnDeath(EntityDeathEvent event)
-	{
-		// If a vampire dies ...
-		Player player = IdUtil.getAsPlayer(event.getEntity());
-		if (MUtil.isntPlayer(player)) return;
-		
-		UPlayer uplayer = UPlayer.get(player);
-		if (uplayer == null) return;
-		
-		if (uplayer.isVampire() == false) return;
-		
-		// ... burns up with a violent scream ;,,;
-		uplayer.runFxShriek();
-		uplayer.runFxFlameBurst();
-		uplayer.runFxSmokeBurst();
-	}
-	
-	// -------------------------------------------- //
 	// MISC
 	// -------------------------------------------- //
 	
@@ -167,7 +145,7 @@ public class ListenerMain extends Engine
 		if (MUtil.isntPlayer(entity)) return;
 		UPlayer uplayer = UPlayer.get(entity);
 		if (uplayer == null) return;
-		if (uplayer.isVampire() == false) return;
+		if (!uplayer.isVampire()) return;
 		
 		// Close down bloodlust.
 		uplayer.setRad(0);
@@ -184,7 +162,7 @@ public class ListenerMain extends Engine
 		
 		final UPlayer uplayer = UPlayer.get(player);
 		if (uplayer == null) return;
-		if ( ! uplayer.isVampire()) return;
+		if (!uplayer.isVampire()) return;
 		
 		// ... modify food and health levels and force another speed-update.
 		Bukkit.getScheduler().scheduleSyncDelayedTask(Vampire.get(), new Runnable()
@@ -205,9 +183,9 @@ public class ListenerMain extends Engine
 	{
 		if (MUtil.isntPlayer(player)) return;
 		UConf uconf = UConf.get(player); 
-		if (uconf.updateNameColor == false) return;
+		if (!uconf.updateNameColor) return;
 		UPlayer uplayer = UPlayer.get(player);
-		if ( ! uplayer.isVampire()) return;
+		if (!uplayer.isVampire()) return;
 		player.setDisplayName(uconf.updateNameColorTo.toString()+ChatColor.stripColor(player.getDisplayName()));
 	}
 	
@@ -292,67 +270,11 @@ public class ListenerMain extends Engine
 		// If a player enters creative-mode ...
 		if (event.getNewGameMode() != GameMode.CREATIVE) return;
 		
-		// ... turn of bloodlust ...
+		// ... turn off bloodlust ...
 		Player player = event.getPlayer();
 		if (MUtil.isntPlayer(player)) return;
 		UPlayer uplayer = UPlayer.get(player);
 		uplayer.setBloodlusting(false);
-	}
-	
-	// -------------------------------------------- //
-	// TRUCE
-	// -------------------------------------------- //
-	
-	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-	public void truceTarget(EntityTargetEvent event)
-	{
-		// If a player is targeted...
-		if (MUtil.isntPlayer(event.getTarget())) return;
-		Player player = (Player)event.getTarget();
-		UConf uconf = UConf.get(player);
-		
-		// ... by creature that cares about the truce with vampires ...
-		if ( ! (uconf.truceEntityTypes.contains(event.getEntityType()))) return;
-		
-		UPlayer uplayer = UPlayer.get(player);
-		
-		// ... and that player is a vampire ...
-		if ( ! uplayer.isVampire()) return;
-		
-		// ... that has not recently done something to break the truce...
-		if (uplayer.truceIsBroken()) return;
-		
-		// ... then if the player is a ghast target nothing ...
-		if (event.getEntityType() == EntityType.GHAST)
-		{
-			event.setTarget(null);
-			return;
-		}
-		
-		// ... otherwise cancel the event.
-		event.setCancelled(true);
-	}
-	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void truceDamage(EntityDamageEvent event)
-	{
-		// If this is a combat event ...
-		if ( ! MUtil.isCombatEvent(event)) return;
-		
-		// ... to a creature that cares about the truce with vampires...
-		Entity entity = event.getEntity();
-		UConf uconf = UConf.get(entity);
-		if ( ! (uconf.truceEntityTypes.contains(entity.getType()))) return;
-		
-		// ... and the liable damager is a vampire ...
-		Entity damager = MUtil.getLiableDamager(event);
-		if (MUtil.isntPlayer(damager)) return;
-		UPlayer vpdamager = UPlayer.get(damager);
-		if (vpdamager == null) return;
-		if ( ! vpdamager.isVampire()) return;
-		
-		// Then that vampire broke the truce.
-		vpdamager.truceBreak();
 	}
 	
 	// -------------------------------------------- //
@@ -371,59 +293,6 @@ public class ListenerMain extends Engine
 		
 		// ... mark now as lastDamageMillis
 		vampire.setLastDamageMillis(System.currentTimeMillis());
-	}
-	
-	// -------------------------------------------- //
-	// COMBAT
-	// -------------------------------------------- //
-	
-	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-	public void combatVulnerability(EntityDamageEvent event)
-	{
-		// If this is a close combat event ...
-		if ( ! MUtil.isCloseCombatEvent(event)) return;
-		
-		// ... where the liable damager is a human entity ...
-		Entity damagerEntity = MUtil.getLiableDamager(event);
-		if ( ! (damagerEntity instanceof HumanEntity)) return;
-		HumanEntity damager = (HumanEntity) damagerEntity;
-		UConf uconf = UConf.get(damager);
-		
-		// ... and the damagee is a vampire ...
-		Entity entity = event.getEntity();
-		if (MUtil.isntPlayer(entity)) return;
-		UPlayer vampire = UPlayer.get(entity);
-		if (vampire == null) return;
-		if ( ! vampire.isVampire()) return;
-		
-		// ... and a wooden item was used ...
-		ItemStack item = InventoryUtil.getWeapon(damager);
-		if (item == null) return;
-		Material itemMaterial = item.getType();
-		if ( ! uconf.combatWoodMaterials.contains(itemMaterial)) return;
-		
-		// ... Then modify damage!
-		MUtil.setDamage(event, uconf.combatWoodDamage);
-	}
-	
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-	public void combatStrength(EntityDamageEvent event)
-	{
-		// If this is a close combat event ...
-		if ( ! MUtil.isCloseCombatEvent(event)) return;
-		
-		// ... and the liable damager is a vampire ...
-		Entity damager = MUtil.getLiableDamager(event);
-		if (MUtil.isntPlayer(damager)) return;
-		UPlayer vampire = UPlayer.get(damager);
-		if (vampire == null) return;
-		if ( ! vampire.isVampire()) return;
-		
-		// ... and this event isn't a forbidden mcmmo one ...
-		if ( ! MConf.get().combatDamageFactorWithMcmmoAbilities && event.getClass().getName().equals("com.gmail.nossr50.events.fake.FakeEntityDamageByEntityEvent")) return;
-		
-		// ... Then modify damage!
-		MUtil.scaleDamage(event, vampire.combatDamageFactor());
 	}
 	
 	// -------------------------------------------- //

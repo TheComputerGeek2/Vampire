@@ -32,4 +32,5 @@ public class CmdVampireVersion extends MassiveCommandVersion
 		return MConf.get().aliasesVampireVersion;
 	}
 
+	
 }

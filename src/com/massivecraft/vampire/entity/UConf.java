@@ -87,11 +87,11 @@ public class UConf extends Entity<UConf>
 	// DROP SELF
 	// -------------------------------------------- //
 	
-	public Set<Material> dropSelfMaterials = MUtil.set(
-		Material.WEB,
-		Material.GLOWSTONE,
-		Material.BOOKSHELF,
-		Material.DEAD_BUSH
+	public BackstringEnumSet<Material> dropSelfMaterials = new BackstringEnumSet<Material>(Material.class,
+		"WEB",
+		"GLOWSTONE",
+		"BOOKSHELF",
+		"DEAD_BUSH"
 	);
 	
 	// -------------------------------------------- //
@@ -182,20 +182,20 @@ public class UConf extends Entity<UConf>
 	private final static transient int damageDiamondSword = 7;
 	public int combatWoodDamage = 3*damageDiamondSword;
 	
-	public Set<Material> combatWoodMaterials = MUtil.set(
-		Material.WOOD_AXE,
-		Material.WOOD_HOE,
-		Material.WOOD_PICKAXE,
-		Material.WOOD_SPADE,
-		Material.WOOD_SWORD,
-		Material.STICK,
-		Material.TORCH,
-		Material.REDSTONE_TORCH_OFF,
-		Material.REDSTONE_TORCH_ON,
-		Material.SIGN,
-		Material.SIGN_POST,
-		Material.FENCE,
-		Material.FENCE_GATE
+	public BackstringEnumSet<Material> combatWoodMaterials = new BackstringEnumSet<Material>(Material.class,
+		"WOOD_AXE",
+		"WOOD_HOE",
+		"WOOD_PICKAXE",
+		"WOOD_SPADE",
+		"WOOD_SWORD",
+		"STICK",
+		"TORCH",
+		"REDSTONE_TORCH_OFF",
+		"REDSTONE_TORCH_ON",
+		"SIGN",
+		"SIGN_POST",
+		"FENCE",
+		"FENCE_GATE"
 	);
 	
 	// -------------------------------------------- //
